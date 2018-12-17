@@ -6,7 +6,7 @@ import * as assert from 'assert';
 import { isWindows } from 'vs/base/common/platform';
 import { URI } from 'vs/base/common/uri';
 import { Selection } from 'vs/editor/common/core/selection';
-import { SelectionBasedVariableResolver, CompositeSnippetVariableResolver, ModelBasedVariableResolver, ClipboardBasedVariableResolver, TimeBasedVariableResolver } from 'vs/editor/contrib/snippet/snippetVariables';
+import { SelectionBasedVariableResolver, CompositeSnippetVariableResolver, ModelBasedVariableResolver, ClipboardBasedVariableResolver, TimeBasedVariableResolver, CommentBasedVariableResolver } from 'vs/editor/contrib/snippet/snippetVariables';
 import { SnippetParser, Variable, VariableResolver } from 'vs/editor/contrib/snippet/snippetParser';
 import { TextModel } from 'vs/editor/common/model/textModel';
 import { IClipboardService } from 'vs/platform/clipboard/common/clipboardService';
@@ -290,6 +290,14 @@ suite('Snippet Variables Resolver', function () {
 		assertVariableResolve3(resolver, 'CURRENT_DAY_NAME_SHORT');
 		assertVariableResolve3(resolver, 'CURRENT_MONTH_NAME');
 		assertVariableResolve3(resolver, 'CURRENT_MONTH_NAME_SHORT');
+	});
+
+	test('Add comment snippet variable #55946', function () {
+		const resolver = new CommentBasedVariableResolver(model);
+
+		assertVariableResolve3(resolver, 'BLOCK_COMMENT_START');
+		assertVariableResolve3(resolver, 'BLOCK_COMMENT_END');
+		assertVariableResolve3(resolver, 'LINE_COMMENT');
 	});
 
 	test('creating snippet - format-condition doesn\'t work #53617', function () {

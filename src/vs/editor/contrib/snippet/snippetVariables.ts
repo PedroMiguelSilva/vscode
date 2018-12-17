@@ -10,6 +10,7 @@ import { Selection } from 'vs/editor/common/core/selection';
 import { VariableResolver, Variable, Text } from 'vs/editor/contrib/snippet/snippetParser';
 import { getLeadingWhitespace, commonPrefixLength, isFalsyOrWhitespace, pad } from 'vs/base/common/strings';
 import { IClipboardService } from 'vs/platform/clipboard/common/clipboardService';
+import { LanguageConfigurationRegistry } from 'vs/editor/common/modes/languageConfigurationRegistry';
 
 export const KnownSnippetVariableNames = Object.freeze({
 	'CURRENT_YEAR': true,
@@ -34,7 +35,35 @@ export const KnownSnippetVariableNames = Object.freeze({
 	'TM_FILENAME_BASE': true,
 	'TM_DIRECTORY': true,
 	'TM_FILEPATH': true,
+	'BLOCK_COMMENT_START': true,
+	'BLOCK_COMMENT_END': true,
+	'LINE_COMMENT': true,
 });
+
+export class CommentBasedVariableResolver implements VariableResolver {
+	constructor(private _model: ITextModel){
+		//
+	}
+
+	resolve(variable: Variable) : string | undefined {
+		const { name } = variable;
+		const language = this._model.getLanguageIdentifier();
+		const config = LanguageConfigurationRegistry.getComments(language.id);
+		if(!config){
+			return undefined;
+		}
+		switch(name){
+			case 'LINE_COMMENT':
+				return config.lineCommentToken;
+			case 'BLOCK_COMMENT_START':
+				return config.blockCommentStartToken;
+			case 'BLOCK_COMMENT_END':
+				return config.blockCommentEndToken;
+			default:
+				return undefined;
+		}
+	}
+}
 
 export class CompositeSnippetVariableResolver implements VariableResolver {
 
